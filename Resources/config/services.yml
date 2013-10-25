@@ -1,0 +1,29 @@
+parameters:
+#    nico_googlemaps.example.class: Nico\GooglemapsBundle\Example
+
+services:
+#    nico_googlemaps.example:
+#        class: %nico_googlemaps.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
+  nico.googlemaps.block.googlemaps:
+      class: Nico\GooglemapsBundle\Block\Service\GooglemapsBlockService
+      arguments: [nico.googlemaps.block.googlemaps,@templating,@service_container,@doctrine.orm.entity_manager]
+      # arguments: [nico.googlemaps.block.googlemaps,@service_container]
+      tags:
+        - { name: sonata.block}
+
+  sonata.admin.googlemaps.map:
+    class: Nico\GooglemapsBundle\Admin\MapAdmin
+    arguments: [null, Nico\GooglemapsBundle\Entity\Map, 'SonataAdminBundle:CRUD']
+    calls:
+      - [setTranslationDomain, [NicoGooglemapsBundle]]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Googlemaps, label: Map }
+
+  sonata.admin.googlemaps.marker:
+    class: Nico\GooglemapsBundle\Admin\MarkerAdmin
+    arguments: [null, Nico\GooglemapsBundle\Entity\Marker, 'SonataAdminBundle:CRUD']
+    calls:
+      - [setTranslationDomain, [NicoGooglemapsBundle]]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Googlemaps, label: Marker }

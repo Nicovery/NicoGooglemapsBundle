@@ -1,0 +1,62 @@
+{% extends sonata_block.templates.block_base %}
+{% block block %}
+
+
+<script>
+{% if( map is not empty) %}
+var map = null;
+function recenter(){
+	map.setCenter(new google.maps.LatLng({{ map.centerLat }}, {{ map.centerLng }}));
+}
+function initialize() {
+	var mapOptions = {
+		zoom: {{ map.zoom }},
+		center: new google.maps.LatLng({{ map.centerLat }}, {{ map.centerLng }}),
+		mapTypeId: google.maps.MapTypeId.{{ map.type }}
+	};
+
+	map = new google.maps.Map(document.getElementById('googlemaps-canvas'),
+		mapOptions);
+	{% for marker in map.markers %}
+		var marker{{marker.id}} = new google.maps.Marker({
+			position: new google.maps.LatLng({{ marker.lat }}, {{ marker.lng }}),
+			map: map,
+			icon: 'http://{{ app.request.server.get("HTTP_HOST") }}{% path marker.icone, 'normal' %}',
+			title: '{{ marker.title }}'
+		});
+		{% if marker.information is not empty %}
+			var content = '<h3>{{ marker.title }}</h3>';
+			content += '{{ marker.information|raw }}';
+			 
+			var infowindow{{marker.id}} = new google.maps.InfoWindow({
+      			content: content,
+      			width: 200
+  			});
+
+
+  			google.maps.event.addDomListener(infowindow{{marker.id}}, 'domready', function(){
+				$('.google-lightbox').fancybox();
+			});
+
+  			google.maps.event.addListener(marker{{marker.id}}, 'click', function() {
+			    infowindow{{marker.id}}.open(map,marker{{marker.id}});
+			  });
+
+
+  			closeInfoWindow = function() {
+    			infowindow{{marker.id}}.close();
+			};
+
+			google.maps.event.addListener(map, 'click', closeInfoWindow);
+
+		{% endif  %}
+	{% endfor %}
+}
+{% endif %}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+
+</script>
+<div id="googlemaps-canvas" class="googlemaps-canvas"></div>
+{% endblock %}
